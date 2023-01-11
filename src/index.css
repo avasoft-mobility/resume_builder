@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&family=Source+Code+Pro:wght@200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Urbanist');
+@import url('https://fonts.googleapis.com/css?family=Quicksand');
+@import url('https://fonts.googleapis.com/css?family=Poppins');
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+@import url('https://fonts.googleapis.com/css?family=sans-serif');
+@import url('https://fonts.googleapis.com/css?family=Spectral');
+@import url('https://fonts.googleapis.com/css?family=Lato');
+* {
+  font-family:  sans-serif, Roboto, Helvetica, Arial, Urbanist, Quicksand,Montserrat,sans-serif,Spectral,Lato;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  overflow: hidden;
+  background-color: #2a2a2a !important;
+}
+
+.ant-divider.css-dev-only-do-not-override-acm2ia.ant-divider-vertical {
+  border: 0.5px solid #D9D9D9;
+  height: 1rem;
+}
+
+.hide_scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.hide_scroll {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
+.scrollbar_resume::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar_resume {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* .ant-space.css-dev-only-do-not-override-acm2ia.ant-space-horizontal.ant-space-align-center.space_antd{
+  row-gap: 20px !important;
+  column-gap:20px !important;
+} */
+
+.accordion_heading {
+  font-size: 23px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.accordion {
+  list-style: none;
+}
+
+.accordion_button {
+  font-size: 16px;
+  background-color: #f9f9f9;
+  color: #fff;
+  text-align: left;
+  font-weight: 700;
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  /* justify-content: space-between; */
+  align-items: center;
+  /* padding: 18px 0px; */
+  cursor: pointer;
+  border: none;
+}
+
+.accordion_control {
+  font-size: 20px;
+}
+
+.accordion_answer {
+  background-color: #f9f9f9;
+  /* padding: 20px; */
+}
+
+/* activate toggle */
+.accordion_item.active .button {
+  background-color: #f9f9f9;
+}
+.accordion_answer_wrapper {
+  height: 0;
+  overflow: hidden;
+  transition: height ease 0.2s;
+}
+
+
+.page {
+  width: 21cm;
+  min-height: 29.7cm;
+  margin: 1cm auto;
+  border: 1px #d3d3d3 solid;
+  background: white;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+@media print {
+  .page {
+    margin: 0;
+    border: initial;
+    border-radius: initial;
+    width: initial;
+    min-height: initial;
+    box-shadow: initial;
+    background: initial;
+    page-break-after: always;
+  }
+}
+
+@page {
+  margin-top: 1cm;
+  margin-bottom: 1cm;
+}
+
+.convert_Button:hover{
+  background-color: rgb(53, 116, 173,10%);
+
+}
+
