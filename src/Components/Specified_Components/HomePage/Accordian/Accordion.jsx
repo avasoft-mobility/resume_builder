@@ -2,60 +2,44 @@ import { useState, useEffect } from "react";
 import AccordionItem from "./AccordionItem";
 import { v4 as uuidv4 } from "uuid";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import useErrorSnackbar from "../../../../Hooks/useErrorSnackbar.hook";
-import RLDD from "react-list-drag-and-drop/lib/RLDD";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { setProjectDetails } from "../../../../Global_states/ResumeDetails";
 
-const Accordion = ({
-  projectList,
-  AddNewProject,
-  currentStep,
-  dragEnabled,
-}) => {
-  const showErrorSnackBar = useErrorSnackbar();
+const Accordion = ({ projectList, AddNewProject, currentStep,dragEnabled }) => {
   const [project_List, setprojectList] = useState(
     projectList != undefined || projectList.length == 0
       ? [
-          {
-            id: 0,
-            projectName: "",
-            industry: "",
-            platform: "",
-            role: "",
-            hasadminpanel: false,
-            apFrontEnd: "",
-            apBackEnd: "",
-            frontEnd: "",
-            backEnd: "",
-            database: "",
-            versionControl: "",
-            startDate: "",
-            endDate: "",
-            description: "",
-            projectTimeline: "",
-            projectYear: "",
-            projectMonth: "",
-          },
-        ]
+        {
+          id: uuidv4(),
+          projectName: "",
+          industry: "",
+          platform: "",
+          role: "",
+          hasadminpanel: false,
+          apFrontEnd: "",
+          apBackEnd: "",
+          frontEnd: "",
+          backEnd: "",
+          database: "",
+          versionControl: "",
+          startDate: "",
+          endDate: "",
+          description: "",
+          projectTimeline: "",
+          projectYear: "",
+          projectMonth: ""
+        },
+      ]
       : projectList
   );
-
-  
-  useEffect(() => {
-    if(dragEnabled == true){
-      setClicked("");
-    }
-  }, [dragEnabled])
-  
 
   const [clicked, setClicked] = useState("0");
 
   const handleToggle = (index) => {
-    if(dragEnabled != true){
-      if (clicked === index) {
-        return setClicked("0");
-      }
-      setClicked(index);
+    if (clicked === index) {
+      return setClicked("0");
     }
+    setClicked(index);
   };
 
   useEffect(() => {
@@ -63,33 +47,27 @@ const Accordion = ({
   }, [project_List.length]);
 
   const AddProject = () => {
-    let Projects = project_List[project_List.length - 1];
-
-    if (Projects.projectYear.length > 0 || Projects.projectMonth.length > 0) {
-      const project = {
-        id: project_List.length,
-        projectName: "",
-        industry: "",
-        platform: "",
-        role: "",
-        hasadminpanel: false,
-        apFrontEnd: "",
-        apBackEnd: "",
-        frontEnd: "",
-        backEnd: "",
-        database: "",
-        versionControl: "",
-        startDate: "",
-        endDate: "",
-        description: "",
-        projectTimeline: "",
-        projectYear: "",
-        projectMonth: "",
-      };
-      setprojectList([...project_List, project]);
-    } else {
-      showErrorSnackBar("Please enter valid project details...");
-    }
+    const project = {
+      id: uuidv4(),
+      projectName: "",
+      industry: "",
+      platform: "",
+      role: "",
+      hasadminpanel: false,
+      apFrontEnd: "",
+      apBackEnd: "",
+      frontEnd: "",
+      backEnd: "",
+      database: "",
+      versionControl: "",
+      startDate: "",
+      endDate: "",
+      description: "",
+      projectTimeline: "",
+      projectYear: "",
+      projectMonth: ""
+    };
+    setprojectList([...project_List, project]);
   };
 
   const DeleteProject = (id) => {
@@ -108,11 +86,20 @@ const Accordion = ({
     AddNewProject(projects);
   };
 
-  const handleRLDDChange = (newItems) => {
-    console.log("Ordered List", newItems);
-    setprojectList(newItems);
-    AddNewProject(newItems);
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
   };
+
+  const onDragEnd = (result) => {
+    const reOrderedProjectDetails = reorder(
+      project_List, result.source.index, result.destination.index
+    );
+    setprojectList(reOrderedProjectDetails);
+    AddNewProject(reOrderedProjectDetails);
+  }
 
   return (
     <div
@@ -124,58 +111,57 @@ const Accordion = ({
       }}
       className={"hide_scroll"}
     >
-      <ul className="accordion" style={{}}>
-        {dragEnabled ? (
-          <RLDD
-            items={project_List}
-            itemRenderer={(faq, index) => {
-              return (
-                <AccordionItem
-                  onToggle={() => handleToggle(index)}
-                  active={clicked === index}
-                  key={index}
-                  dragEnabled={dragEnabled}
-                  allProjects={project_List}
-                  projectList={faq}
-                  index={index}
-                  DeleteProject={DeleteProject}
-                  updateValueChage={updateValueChage}
-                />
-              );
-            }}
-            onChange={handleRLDDChange}
-          />
+      {
+        dragEnabled ? (
+          <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="list-container">
+            {(provided) => (
+              <ul className="accordion list-container" style={{}} {...provided.droppableProps} ref={provided.innerRef}>
+                {project_List.map((faq, index) => (
+                  <Draggable key={faq.id} draggableId={faq.id} index={index}>
+                    {(provided) => (
+                      <div className="item-container"
+                        ref={provided.innerRef}
+                        {...provided.dragHandleProps}
+                        {...provided.draggableProps}>
+                        <AccordionItem
+                                            onToggle={() => handleToggle(index)}
+                                            active={clicked === index}
+                                            key={index}
+                                            dragEnabled={dragEnabled}
+                                            allProjects={project_List}
+                                            projectList={faq}
+                                            index={index}
+                                            DeleteProject={DeleteProject}
+                                            updateValueChage={updateValueChage}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+              </ul>
+            )}
+          </Droppable>
+        </DragDropContext>
         ) : (
-          project_List.map((faq, index) => (
-            <AccordionItem
-              onToggle={() => handleToggle(index)}
-              active={clicked === index}
-              key={index}
-              dragEnabled={dragEnabled}
-              allProjects ={project_List}
-              projectList={faq}
-              index={index}
-              DeleteProject={DeleteProject}
-              updateValueChage={updateValueChage}
-            />
-          ))
+          <ul className="accordion list-container" style={{}}>
+             {project_List.map((faq, index) => (
+               <AccordionItem
+               onToggle={() => handleToggle(index)}
+               active={clicked === index}
+               key={index}
+               dragEnabled={dragEnabled}
+               allProjects={project_List}
+               projectList={faq}
+               index={index}
+               DeleteProject={DeleteProject}
+               updateValueChage={updateValueChage}
+/>
+             ))}
+          </ul>
         )
-        
-        }
+      }
 
-        {/* {project_List.map((faq, index) => (
-          <AccordionItem
-            onToggle={() => handleToggle(index)}
-            active={clicked === index}
-            key={index}
-            allProjects ={project_List}
-            projectList={faq}
-            index={index}
-            DeleteProject={DeleteProject}
-            updateValueChage={updateValueChage}
-          />
-        ))} */}
-      </ul>
       <div style={{ display: dragEnabled ? "none" : "flex", justifyContent: "center" }}>
         <div
           style={{

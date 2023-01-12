@@ -114,6 +114,7 @@ const AccordionItem = ({
     setUpdatedValue(!updatedValue);
   };
 
+  
   useEffect(() => {
     if (index == 0) {
       setCurrentProjectDetails({...currentProjectDetails,["startDate"]: ResumeDetails.personalDetails.joiningDate,});
@@ -186,7 +187,8 @@ const AccordionItem = ({
       setUpdatedValue(!updatedValue);
     }
   }, [ResumeDetails.personalDetails.joiningDate])
-  
+
+
 
   return (
     <div
