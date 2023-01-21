@@ -52,14 +52,14 @@ function HomePage() {
   let UserName: any = localStorage.getItem("UserName");
 
   //   const configuration = new Configuration({
-  //     apiKey: "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",
+  //     apiKey: "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",
   //   });
   //   const openai = new OpenAIApi(configuration);
 
   //   const completion = openai.createCompletion({
   //     model: "text-davinci-003",
   //     prompt: "project summary for team lead in points without number",
-  //     temperature: 0.73,
+  //     temperature: 0.3,
   //     max_tokens: 1000,
   //   });
 

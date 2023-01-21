@@ -144,7 +144,6 @@ const Accordion = ({ projectList, AddNewProject, currentStep,dragEnabled }) => {
         lst=null;
       }
 
-      console.log(list)
       
       setprojectList(list);
       AddNewProject(list);

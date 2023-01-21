@@ -79,7 +79,6 @@ const AccordionItem = ({
       setCurrentProjectDetails(projectDetails)
     }, [projectList])
 
-  console.log(currentProjectDetails , "DAsfasf")
   const [updatedValue, setUpdatedValue] = useState(false);
   const Color = [
     "#1D99F3",
