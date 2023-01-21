@@ -4,8 +4,17 @@ import { v4 as uuidv4 } from "uuid";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { setProjectDetails } from "../../../../Global_states/ResumeDetails";
+import { RootState } from "../../../../Stores";
+import { useSelector } from "react-redux";
+import useErrorSnackbar from "../../../../Hooks/useErrorSnackbar.hook";
 
 const Accordion = ({ projectList, AddNewProject, currentStep,dragEnabled }) => {
+  const showErrorSnackBar = useErrorSnackbar();
+
+  const ResumeDetails = useSelector(
+    (state) => state.ResumeDetails.value
+  );
+
   const [project_List, setprojectList] = useState(
     projectList != undefined || projectList.length == 0
       ? [
@@ -33,13 +42,23 @@ const Accordion = ({ projectList, AddNewProject, currentStep,dragEnabled }) => {
       : projectList
   );
 
+  useEffect(() => {
+
+  }, [project_List])
+  
+
   const [clicked, setClicked] = useState("0");
 
   const handleToggle = (index) => {
-    if (clicked === index) {
-      return setClicked("0");
+    if(dragEnabled == false){
+      if (clicked === index) {
+        return setClicked("0");
+      }
+      setClicked(index);
     }
-    setClicked(index);
+    else{
+      showErrorSnackBar("Please turn off toggle to view !!!")
+    }
   };
 
   useEffect(() => {
@@ -79,11 +98,58 @@ const Accordion = ({ projectList, AddNewProject, currentStep,dragEnabled }) => {
     AddNewProject(currentProjects);
   };
 
-  const updateValueChage = (index, current_Project) => {
-    let projects = [...project_List];
-    projects[index] = current_Project;
-    setprojectList(projects);
-    AddNewProject(projects);
+  const updateValueChage = (index, current_Project,action = "") => {
+      let projects = [...project_List];
+      projects[index] = current_Project;
+
+      let projectList = projects;
+      let list=[];
+  
+      for(let i=0;i<projectList.length;i++){
+        let lst = {...projectList[i]}
+        if(i == 0){
+          lst.startDate = ResumeDetails.personalDetails.joiningDate;
+  
+        if(lst.projectMonth != "" && lst.projectYear){
+          let joined_year = new Date(new Date(lst.startDate).setFullYear(new Date(lst.startDate).getFullYear() + parseInt(lst.projectYear) ));
+          let joined_Month = new Date(joined_year.setMonth(joined_year.getMonth() + parseInt(lst.projectMonth)))
+          lst.endDate = joined_Month.toString()
+        } 
+        else if(lst.projectYear != ""){
+          lst.endDate = new Date(new Date(lst.startDate).setFullYear(new Date(lst.startDate).getFullYear() + parseInt(lst.projectYear) )).toString()
+        }
+        else if(lst.projectMonth != ""){
+          lst.endDate = new Date(new Date(lst.startDate).setMonth(new Date(lst.startDate).getMonth() + parseInt(lst.projectMonth) )).toString()
+        }
+  
+        list.push(lst)
+        }
+        else{
+          lst.startDate = projectList[i - 1].endDate;
+    
+          if(lst.projectMonth != "" && lst.projectYear){
+            let joined_year = new Date(new Date(lst.startDate).setFullYear(new Date(lst.startDate).getFullYear() + parseInt(lst.projectYear) ));
+            let joined_Month = new Date(joined_year.setMonth(joined_year.getMonth() + parseInt(lst.projectMonth)))
+  
+            lst.endDate = joined_Month.toString()
+          } 
+          else if(lst.projectYear != ""){
+            lst.endDate = new Date(new Date(lst.startDate).setFullYear(new Date(lst.startDate).getFullYear() + parseInt(lst.projectYear) )).toString()
+          }
+          else if(lst.projectMonth != ""){
+            lst.endDate = new Date(new Date(lst.startDate).setMonth(new Date(lst.startDate).getMonth() + parseInt(lst.projectMonth) )).toString()
+          }
+          list.push(lst)
+        }
+        lst=null;
+      }
+
+      console.log(list)
+      
+      setprojectList(list);
+      AddNewProject(list);
+
+      
   };
 
   const reorder = (list, startIndex, endIndex) => {
@@ -97,9 +163,61 @@ const Accordion = ({ projectList, AddNewProject, currentStep,dragEnabled }) => {
     const reOrderedProjectDetails = reorder(
       project_List, result.source.index, result.destination.index
     );
-    setprojectList(reOrderedProjectDetails);
-    AddNewProject(reOrderedProjectDetails);
+
+
+    let projectList = [...reOrderedProjectDetails];
+    let list=[];
+
+    for(let i=0;i<projectList.length;i++){
+      let lst = {...projectList[i]}
+      if(i == 0){
+        lst.startDate = ResumeDetails.personalDetails.joiningDate;
+
+      if(lst.projectMonth != "" && lst.projectYear){
+        let joined_year = new Date(new Date(lst.startDate).setFullYear(new Date(lst.startDate).getFullYear() + parseInt(lst.projectYear) ));
+        let joined_Month = new Date(joined_year.setMonth(joined_year.getMonth() + parseInt(lst.projectMonth)))
+        lst.endDate = joined_Month.toString()
+      } 
+      else if(lst.projectYear != ""){
+        lst.endDate = new Date(new Date(lst.startDate).setFullYear(new Date(lst.startDate).getFullYear() + parseInt(lst.projectYear) )).toString()
+      }
+      else if(lst.projectMonth != ""){
+        lst.endDate = new Date(new Date(lst.startDate).setMonth(new Date(lst.startDate).getMonth() + parseInt(lst.projectMonth) )).toString()
+      }
+
+      list.push(lst)
+      }
+      else{
+        lst.startDate = projectList[i - 1].endDate;
+  
+        if(lst.projectMonth != "" && lst.projectYear){
+          let joined_year = new Date(new Date(lst.startDate).setFullYear(new Date(lst.startDate).getFullYear() + parseInt(lst.projectYear) ));
+          let joined_Month = new Date(joined_year.setMonth(joined_year.getMonth() + parseInt(lst.projectMonth)))
+
+          lst.endDate = joined_Month.toString()
+        } 
+        else if(lst.projectYear != ""){
+          lst.endDate = new Date(new Date(lst.startDate).setFullYear(new Date(lst.startDate).getFullYear() + parseInt(lst.projectYear) )).toString()
+        }
+        else if(lst.projectMonth != ""){
+          lst.endDate = new Date(new Date(lst.startDate).setMonth(new Date(lst.startDate).getMonth() + parseInt(lst.projectMonth) )).toString()
+        }
+        list.push(lst)
+      }
+      lst=null;
+    }
+
+    setprojectList(list);
+    AddNewProject(list);
   }
+
+
+  useEffect(() => {
+    if(dragEnabled == true){
+      setClicked("0")
+    }
+  }, [dragEnabled])
+  
 
   return (
     <div
