@@ -886,6 +886,45 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
       }
     };
 
+
+
+
+useEffect(() => {
+  const concernedElement:any = document.querySelector(".click-text");
+
+  document.addEventListener("mousedown", (event) => {
+    if(editSummary == false){
+      if(concernedElement != null){
+        if (concernedElement.contains(event.target)) {
+          } else {
+            setEditSummary(false);
+            // setResumeSummary(editorSummary);
+          }
+      }
+
+    }
+  });
+}, [editorSummary])
+
+
+// useEffect(() => {
+//   const concernedElement:any = document.querySelector(".project-text");
+
+//   document.addEventListener("mousedown", (event) => {
+//     if(editSummary == false){
+//     if (concernedElement.contains(event.target)) {
+//       console.log("Clicked Inside");
+//     } else {
+//       setselectedProjectIndex(null);
+//         // setResumeSummary(editorSummary);
+//       }
+//     }
+//   });
+// }, [selectedProjectIndex])
+
+
+
+
     return (
       <div
         style={{
@@ -997,6 +1036,7 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
               }}
               style={{ display: editSummary == true ? "" : "none" }}
               id="summaryEditSpan"
+              className="click-text"
             >
               <div
                 style={{
@@ -1019,7 +1059,8 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
                     .replaceAll("{version-control}", versionControl)
                     .replaceAll("{platforms}", platforms)
                     .replaceAll("{all_stacks}", allStacks)}
-                  onChange={setEditorSummary}
+                  onChange={(value) => {setEditorSummary(value)
+                    setResumeSummary(value)}}
                   modules={modules}
                   style={{
                     fontFamily: "Spectral",
@@ -1166,6 +1207,7 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
                       style={{
                         display: selectedProjectIndex == index ? "" : "none",
                       }}
+                      className="project-text"
                     >
                       <div
                         style={{

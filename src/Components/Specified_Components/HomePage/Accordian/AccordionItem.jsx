@@ -20,13 +20,14 @@ const AccordionItem = ({
   DeleteProject,
   updateValueChage,
   allProjects,
-  dragEnabled
+  dragEnabled,
+  updateDate
 }) => {
   const contentEl = useRef();
 
 
   const ResumeDetails = useSelector(
-    (state: RootState) => state.ResumeDetails.value
+    (state) => state.ResumeDetails.value
   );
 
   let projectDetails = {
@@ -48,9 +49,35 @@ const AccordionItem = ({
     projectMonth: projectList.projectMonth,
     projectYear: projectList.projectYear,
   };
+  
 
   const [currentProjectDetails, setCurrentProjectDetails] =
     useState(projectDetails);
+
+
+    useEffect(() => {
+      let projectDetails = {
+        id: projectList.id,
+        projectName: projectList.projectName,
+        industry: projectList.industry,
+        platform: projectList.platform,
+        role: projectList.role,
+        hasadminpanel: projectList.hasadminpanel,
+        apFrontEnd: projectList.apFrontEnd,
+        apBackEnd: projectList.apBackEnd,
+        frontEnd: projectList.frontEnd,
+        backEnd: projectList.backEnd,
+        database: projectList.database,
+        versionControl: projectList.versionControl,
+        startDate: projectList.startDate,
+        endDate: projectList.endDate,
+        description: "",
+        projectMonth: projectList.projectMonth,
+        projectYear: projectList.projectYear,
+      };
+  
+      setCurrentProjectDetails(projectDetails)
+    }, [projectList])
 
   console.log(currentProjectDetails , "DAsfasf")
   const [updatedValue, setUpdatedValue] = useState(false);
@@ -143,6 +170,7 @@ const AccordionItem = ({
       setUpdatedValue(!updatedValue);
     }
     else{
+      debugger;
       setCurrentProjectDetails({
         ...currentProjectDetails,
         ["startDate"]: allProjects[index - 1].endDate,

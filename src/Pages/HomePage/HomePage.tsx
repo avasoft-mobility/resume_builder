@@ -28,12 +28,13 @@ import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "../../authConfig";
 import Switch, { SwitchProps } from "@mui/material/Switch";
 import Stack from "@mui/material/Stack";
+const { Configuration, OpenAIApi } = require("openai");
 
 function HomePage() {
   const { forwardRef, useRef, useImperativeHandle } = React;
   const childRef = useRef<any>();
   const [currentStep, setCurrentStep] = useState(0);
-  const [dragEnabled,setDragEnabled] = useState(false);
+  const [dragEnabled, setDragEnabled] = useState(false);
   const [stepChange, setStepChange] = useState(false);
   const showErrorSnackBar = useErrorSnackbar();
   let naviagte = useNavigate();
@@ -50,23 +51,39 @@ function HomePage() {
   const [done, setDone] = useState(true);
   let UserName: any = localStorage.getItem("UserName");
 
+  //   const configuration = new Configuration({
+  //     apiKey: "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",
+  //   });
+  //   const openai = new OpenAIApi(configuration);
+
+  //   const completion = openai.createCompletion({
+  //     model: "text-davinci-003",
+  //     prompt: "project summary for team lead in points without number",
+  //     temperature: 0.73,
+  //     max_tokens: 1000,
+  //   });
+
+  //   completion.then(function(result:any) {
+  //     console.log(result.data)
+  //  }, function(err:any) {
+  //     var newName = 'Anonymous'
+  //     console.log(err)
+  //  });
+
   // useEffect(() => {
-  //   debugger;
   //   console.log(accounts)
-  //   if(done){
-  //     if (accounts.length == 0) {
-  //       instance
-  //         .loginRedirect(loginRequest)
-  //         .then(() => {
-  //         })
-  //         .catch((e) => {});
-  //     }
-  //     setDone(false)
-  //   }
-  // }, []);
+  //     // if (accounts.length == 0) {
+  //     //   instance
+  //     //     .loginRedirect(loginRequest)
+  //     //     .then(() => {
+  //     //     })
+  //     //     .catch((e) => {});
+  //     // }
+  // }, [accounts]);
 
   const handleStepChange = (action: string) => {
     if (action == "back") {
+      setDragEnabled(false)
       if (currentStep == 0) {
         return;
       } else {
@@ -193,6 +210,7 @@ function HomePage() {
         }
 
         if (is_Valid == true) {
+          setDragEnabled(false)
           setStepChange(!stepChange);
           return true;
         } else {
@@ -221,6 +239,10 @@ function HomePage() {
       }
     } else {
       setCurrentStep(stepCount);
+    }
+
+    if(stepCount == 1 && currentStep == 2){
+      setDragEnabled(false)
     }
 
     if (isvalid) {
@@ -276,7 +298,7 @@ function HomePage() {
   const label = { inputProps: { "aria-label": "Switch demo" } };
 
   const handleToggleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDragEnabled(event.target.checked)
+    setDragEnabled(event.target.checked);
   };
 
   return (
@@ -476,6 +498,23 @@ function HomePage() {
                       ? "Project Experience"
                       : "Download Resume"}
                   </Text>
+                  <Tooltip
+                    placement="right"
+                    title={"To enable drag & drop ON toggle."}
+                  >
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <Icon
+                        type={"info"}
+                        style={{
+                          fill: "blue",
+                          margin: "5px",
+                          width: "18px",
+                          height: "18px",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </div>
+                  </Tooltip>
                 </div>
                 <div
                   style={{
@@ -505,7 +544,10 @@ function HomePage() {
                 <EducationDetails />
               </div>
               <div style={{ display: currentStep != 2 ? "none" : "" }}>
-                <ProjectDetails currentStep={currentStep} dragEnabled={dragEnabled}/>
+                <ProjectDetails
+                  currentStep={currentStep}
+                  dragEnabled={dragEnabled}
+                />
               </div>
               <div style={{ display: currentStep != 3 ? "none" : "" }}>
                 <DownloadResume ref={childRef} stepChange={stepChange} />

@@ -45,3 +45,7 @@ p{
   letter-spacing: -0.8px;
   word-break: break-word;
 }
+
+ul{
+  list-style: disc;
+}
