@@ -76,7 +76,7 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
 
     const chatGPTResumeSummary = () => {
       const configuration = new Configuration({
-        apiKey: "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",
+        apiKey: "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",
       });
       const openai = new OpenAIApi(configuration);
 
@@ -96,164 +96,171 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
     }
 
     useEffect(() => {
-      chatGPTResumeSummary();
-    }, [ResumeDetails.personalDetails])
+      if (ResumeDetails.enableChatGPT) {
+        if (
+          profileSummary != null &&
+          profileSummary != undefined &&
+          ResumeDetails.personalDetails.jobTitle.length > 0
+        ) {
+          chatGPTResumeSummary();
+        }
+      }
+      else {
+        if (
+          profileSummary != null &&
+          profileSummary != undefined &&
+          ResumeDetails.personalDetails.jobTitle.length > 0
+        ) {
+          let summaryArray: any = [];
+          let temporaryArray: any = [];
 
-    // useEffect(() => {
-    //   if (
-    //     profileSummary != null &&
-    //     profileSummary != undefined &&
-    //     ResumeDetails.personalDetails.jobTitle.length > 0
-    //   ) {
-    //     let summaryArray: any = [];
-    //     let temporaryArray: any = [];
+          if (
+            ResumeDetails.personalDetails.jobTitle.toLowerCase().includes("lead")
+          ) {
+            //Gets all the Lead
+            for (let i = 0; i < profileSummary.length; i++) {
+              if (profileSummary[i].Role.toLowerCase().includes("lead")) {
+                summaryArray.push(profileSummary[i]);
+              }
+            }
 
-    //     if (
-    //       ResumeDetails.personalDetails.jobTitle.toLowerCase().includes("lead")
-    //     ) {
-    //       //Gets all the Lead
-    //       for (let i = 0; i < profileSummary.length; i++) {
-    //         if (profileSummary[i].Role.toLowerCase().includes("lead")) {
-    //           summaryArray.push(profileSummary[i]);
-    //         }
-    //       }
+            //Get Stack Specific
+            if (summaryArray.length > 1) {
+              temporaryArray = summaryArray;
+              summaryArray = [];
+              for (let i = 0; i < temporaryArray.length; i++) {
+                if (
+                  ResumeDetails.personalDetails.jobTitle
+                    .toLowerCase()
+                    .split(" ")
+                    .includes(temporaryArray[i].Role.toLowerCase().split(" ")[1])
+                ) {
+                  summaryArray.push(temporaryArray[i]);
+                }
+              }
+            }
+          } else {
+            //Getting the List of Summary
+            for (let i = 0; i < profileSummary.length; i++) {
+              if (profileSummary[i].Role.length > 0) {
+                let user_role = ResumeDetails.personalDetails.jobTitle
+                  .toLowerCase()
+                  .split(" ");
+                let current_role =
+                  profileSummary[i].Role.toLowerCase().split(" ");
+                for (let j = 0; j < current_role.length; j++) {
+                  if (user_role.includes(current_role[j].toLowerCase())) {
+                    summaryArray.push(profileSummary[i]);
+                    break;
+                  }
+                }
+              }
+            }
 
-    //       //Get Stack Specific
-    //       if (summaryArray.length > 1) {
-    //         temporaryArray = summaryArray;
-    //         summaryArray = [];
-    //         for (let i = 0; i < temporaryArray.length; i++) {
-    //           if (
-    //             ResumeDetails.personalDetails.jobTitle
-    //               .toLowerCase()
-    //               .split(" ")
-    //               .includes(temporaryArray[i].Role.toLowerCase().split(" ")[1])
-    //           ) {
-    //             summaryArray.push(temporaryArray[i]);
-    //           }
-    //         }
-    //       }
-    //     } else {
-    //       //Getting the List of Summary
-    //       for (let i = 0; i < profileSummary.length; i++) {
-    //         if (profileSummary[i].Role.length > 0) {
-    //           let user_role = ResumeDetails.personalDetails.jobTitle
-    //             .toLowerCase()
-    //             .split(" ");
-    //           let current_role =
-    //             profileSummary[i].Role.toLowerCase().split(" ");
-    //           for (let j = 0; j < current_role.length; j++) {
-    //             if (user_role.includes(current_role[j].toLowerCase())) {
-    //               summaryArray.push(profileSummary[i]);
-    //               break;
-    //             }
-    //           }
-    //         }
-    //       }
+            //Getting the List of Summary - (Senior/Junior)
+            if (summaryArray.length > 1) {
+              temporaryArray = summaryArray;
+              summaryArray = [];
+              if (
+                ResumeDetails.personalDetails.jobTitle
+                  .toLowerCase()
+                  .split(" ")
+                  .includes("senior")
+              ) {
+                for (let i = 0; i < temporaryArray.length; i++) {
+                  if (
+                    temporaryArray[i].Role.toLowerCase()
+                      .split(" ")
+                      .includes("senior")
+                  ) {
+                    summaryArray.push(temporaryArray[i]);
+                  }
+                }
+              } else {
+                for (let i = 0; i < temporaryArray.length; i++) {
+                  if (
+                    temporaryArray[i].Role.toLowerCase()
+                      .split(" ")
+                      .includes("junior")
+                  ) {
+                    summaryArray.push(temporaryArray[i]);
+                  }
+                }
+              }
+            }
 
-    //       //Getting the List of Summary - (Senior/Junior)
-    //       if (summaryArray.length > 1) {
-    //         temporaryArray = summaryArray;
-    //         summaryArray = [];
-    //         if (
-    //           ResumeDetails.personalDetails.jobTitle
-    //             .toLowerCase()
-    //             .split(" ")
-    //             .includes("senior")
-    //         ) {
-    //           for (let i = 0; i < temporaryArray.length; i++) {
-    //             if (
-    //               temporaryArray[i].Role.toLowerCase()
-    //                 .split(" ")
-    //                 .includes("senior")
-    //             ) {
-    //               summaryArray.push(temporaryArray[i]);
-    //             }
-    //           }
-    //         } else {
-    //           for (let i = 0; i < temporaryArray.length; i++) {
-    //             if (
-    //               temporaryArray[i].Role.toLowerCase()
-    //                 .split(" ")
-    //                 .includes("junior")
-    //             ) {
-    //               summaryArray.push(temporaryArray[i]);
-    //             }
-    //           }
-    //         }
-    //       }
+            //Getting the List of Summary - (Stack)
+            if (summaryArray.length > 1) {
+              temporaryArray = summaryArray;
+              summaryArray = [];
+              for (let i = 0; i < temporaryArray.length; i++) {
+                if (
+                  ResumeDetails.personalDetails.jobTitle
+                    .toLowerCase()
+                    .split(" ")
+                    .includes(temporaryArray[i].Role.toLowerCase().split(" ")[1])
+                ) {
+                  summaryArray.push(temporaryArray[i]);
+                }
+              }
+            }
+          }
 
-    //       //Getting the List of Summary - (Stack)
-    //       if (summaryArray.length > 1) {
-    //         temporaryArray = summaryArray;
-    //         summaryArray = [];
-    //         for (let i = 0; i < temporaryArray.length; i++) {
-    //           if (
-    //             ResumeDetails.personalDetails.jobTitle
-    //               .toLowerCase()
-    //               .split(" ")
-    //               .includes(temporaryArray[i].Role.toLowerCase().split(" ")[1])
-    //           ) {
-    //             summaryArray.push(temporaryArray[i]);
-    //           }
-    //         }
-    //       }
-    //     }
+          if (summaryArray.length > 1) {
+            temporaryArray = summaryArray;
+            summaryArray = [];
+            for (let i = 0; i < temporaryArray.length; i++) {
+              if (
+                ResumeDetails.personalDetails.jobTitle
+                  .toLowerCase()
+                  .split(" ")
+                  .includes(temporaryArray[i].Role.toLowerCase().split(" ")[0])
+              ) {
+                summaryArray.push(temporaryArray[i]);
+              }
+            }
+          }
 
-    //     if (summaryArray.length > 1) {
-    //       temporaryArray = summaryArray;
-    //       summaryArray = [];
-    //       for (let i = 0; i < temporaryArray.length; i++) {
-    //         if (
-    //           ResumeDetails.personalDetails.jobTitle
-    //             .toLowerCase()
-    //             .split(" ")
-    //             .includes(temporaryArray[i].Role.toLowerCase().split(" ")[0])
-    //         ) {
-    //           summaryArray.push(temporaryArray[i]);
-    //         }
-    //       }
-    //     }
+          if (summaryArray.length == 0) {
+            if (
+              ResumeDetails.personalDetails.jobTitle
+                .toLowerCase()
+                .includes("lead")
+            ) {
+              summaryArray = [profileSummary[profileSummary.length - 4]];
+            } else if (
+              ResumeDetails.personalDetails.jobTitle
+                .toLowerCase()
+                .includes("senior")
+            ) {
+              summaryArray = [profileSummary[profileSummary.length - 3]];
+            } else if (
+              ResumeDetails.personalDetails.jobTitle
+                .toLowerCase()
+                .includes("junior")
+            ) {
+              summaryArray = [profileSummary[profileSummary.length - 2]];
+            } else {
+              summaryArray = [profileSummary[profileSummary.length - 1]];
+            }
+          }
 
-    //     if (summaryArray.length == 0) {
-    //       if (
-    //         ResumeDetails.personalDetails.jobTitle
-    //           .toLowerCase()
-    //           .includes("lead")
-    //       ) {
-    //         summaryArray = [profileSummary[profileSummary.length - 4]];
-    //       } else if (
-    //         ResumeDetails.personalDetails.jobTitle
-    //           .toLowerCase()
-    //           .includes("senior")
-    //       ) {
-    //         summaryArray = [profileSummary[profileSummary.length - 3]];
-    //       } else if (
-    //         ResumeDetails.personalDetails.jobTitle
-    //           .toLowerCase()
-    //           .includes("junior")
-    //       ) {
-    //         summaryArray = [profileSummary[profileSummary.length - 2]];
-    //       } else {
-    //         summaryArray = [profileSummary[profileSummary.length - 1]];
-    //       }
-    //     }
+          if (
+            ResumeDetails.personalDetails.jobTitle.toLowerCase() !=
+            "mobile architect"
+          ) {
+            summaryArray = [];
+            summaryArray = [profileSummary[profileSummary.length - 1]];
+          }
 
-    //     if (
-    //       ResumeDetails.personalDetails.jobTitle.toLowerCase() !=
-    //       "mobile architect"
-    //     ) {
-    //       summaryArray = [];
-    //       summaryArray = [profileSummary[profileSummary.length - 1]];
-    //     }
-
-    //     setResumeSummary(
-    //       summaryArray[0].Summary[
-    //       Math.floor(Math.random() * summaryArray[0].Summary.length)
-    //       ]
-    //     );
-    //   }
-    // }, [ResumeDetails.personalDetails]);
+          setResumeSummary(
+            summaryArray[0].Summary[
+            Math.floor(Math.random() * summaryArray[0].Summary.length)
+            ]
+          );
+        }
+      }
+    }, [ResumeDetails.personalDetails]);
 
     useEffect(() => {
       let frontEndData = "";
@@ -353,42 +360,42 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
       setStackList(frontEndData + ", " + backEndData + ", " + DataBaseData);
     }, [ResumeDetails.projectDetails]);
 
-    useEffect(() => {
-      const chatGPTProjectSummary = () => {
-        setproject_Summary([]);
-        for (let i = 0; i < ResumeDetails.projectDetails.length; i++) {
-          console.log("started");
-          getChatGPTProjectDetails(ResumeDetails.projectDetails[i], i);
-        }
-      }
-    }, [ResumeDetails.projectDetails])
+    // useEffect(() => {
+    //   const chatGPTProjectSummary = () => {
+    //     setproject_Summary([]);
+    //     for (let i = 0; i < ResumeDetails.projectDetails.length; i++) {
+    //       console.log("started");
+    //       getChatGPTProjectDetails(ResumeDetails.projectDetails[i], i);
+    //     }
+    //   }
+    // }, [ResumeDetails.projectDetails])
 
     const getChatGPTProjectDetails = (Dataset: any, index: any) => {
       let data: any = Dataset;
-      let project_details = [];
+      let project_details: any[] = [];
 
       const configuration = new Configuration({
-        apiKey: "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",
+        apiKey: "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",
       });
       const openai = new OpenAIApi(configuration);
 
       const completion = openai.createCompletion({
         model: "text-davinci-003",
-        prompt: `project summary for ${data.role} in ${data.front_end} for frontend and ${data.back_end} for backend using ${data.platform} and ${data.database}`,
+        prompt: `Project summary for resume builder app in points`,
         temperature: 0.3,
         max_tokens: 1000,
       });
 
       completion.then(function (result: any) {
-        let objectlist: any = {
+        let objectlist = {
           Role: "",
           Description: result.data.choices[0].text,
         };
         project_details.push(objectlist);
-        if(project_details.length > 0){
-          let details = projectDetails;
-          details[index] = projectDetails[0];
-          setproject_Summary(details);
+        if (project_details.length > 0) {
+          let projectsList = project_Summary;
+          projectsList[index] = project_details[0];
+          setproject_Summary(projectsList);
         }
         console.log(result.data.choices[0].text);
       }, function (err: any) {
@@ -396,14 +403,17 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
       });
     }
 
-
-
-    // useEffect(() => {
-    //   setproject_Summary([]);
-    //   for (let i = 0; i < ResumeDetails.projectDetails.length; i++) {
-    //     getProjectDetails(ResumeDetails.projectDetails[i], i);
-    //   }
-    // }, [ResumeDetails.projectDetails]);
+    useEffect(() => {
+      setproject_Summary([]);
+      for (let i = 0; i < ResumeDetails.projectDetails.length; i++) {
+        if (ResumeDetails.enableChatGPT) {
+          getChatGPTProjectDetails(ResumeDetails.projectDetails[i], i);
+        }
+        else {
+          getProjectDetails(ResumeDetails.projectDetails[i], i);
+        }
+      }
+    }, [ResumeDetails.projectDetails]);
 
     const componentRef = React.useRef<HTMLDivElement>(null);
 

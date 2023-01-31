@@ -29,3 +29,5 @@ export const projectDetails = {
   endDate: "",
   description:""
 };
+
+export const enableChatGPT : boolean = false;
