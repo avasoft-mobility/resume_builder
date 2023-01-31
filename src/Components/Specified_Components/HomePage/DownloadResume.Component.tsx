@@ -19,6 +19,8 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { Divider } from "antd";
 import { Tooltip } from "antd";
+import { setProjectDetails } from "../../../Global_states/ResumeDetails";
+const { Configuration, OpenAIApi } = require("openai");
 
 const { forwardRef, useRef, useImperativeHandle } = React;
 
@@ -72,161 +74,186 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
     const [selectedProjectIndex, setselectedProjectIndex] = useState(null);
     const [EditorprojectSummary, setEditorprojectSummary] = useState("");
 
+    const chatGPTResumeSummary = () => {
+      const configuration = new Configuration({
+        apiKey: "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",
+      });
+      const openai = new OpenAIApi(configuration);
+
+      const completion = openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: `project summary for ${ResumeDetails.personalDetails.jobTitle}`,
+        temperature: 0.3,
+        max_tokens: 1000,
+      });
+
+      completion.then(function (result: any) {
+        setResumeSummary(result.data.choices[0].text);
+        console.log(result.data.choices[0].text);
+      }, function (err: any) {
+        console.log(err)
+      });
+    }
+
     useEffect(() => {
-      if (
-        profileSummary != null &&
-        profileSummary != undefined &&
-        ResumeDetails.personalDetails.jobTitle.length > 0
-      ) {
-        let summaryArray: any = [];
-        let temporaryArray: any = [];
+      chatGPTResumeSummary();
+    }, [ResumeDetails.personalDetails])
 
-        if (
-          ResumeDetails.personalDetails.jobTitle.toLowerCase().includes("lead")
-        ) {
-          //Gets all the Lead
-          for (let i = 0; i < profileSummary.length; i++) {
-            if (profileSummary[i].Role.toLowerCase().includes("lead")) {
-              summaryArray.push(profileSummary[i]);
-            }
-          }
+    // useEffect(() => {
+    //   if (
+    //     profileSummary != null &&
+    //     profileSummary != undefined &&
+    //     ResumeDetails.personalDetails.jobTitle.length > 0
+    //   ) {
+    //     let summaryArray: any = [];
+    //     let temporaryArray: any = [];
 
-          //Get Stack Specific
-          if (summaryArray.length > 1) {
-            temporaryArray = summaryArray;
-            summaryArray = [];
-            for (let i = 0; i < temporaryArray.length; i++) {
-              if (
-                ResumeDetails.personalDetails.jobTitle
-                  .toLowerCase()
-                  .split(" ")
-                  .includes(temporaryArray[i].Role.toLowerCase().split(" ")[1])
-              ) {
-                summaryArray.push(temporaryArray[i]);
-              }
-            }
-          }
-        } else {
-          //Getting the List of Summary
-          for (let i = 0; i < profileSummary.length; i++) {
-            if (profileSummary[i].Role.length > 0) {
-              let user_role = ResumeDetails.personalDetails.jobTitle
-                .toLowerCase()
-                .split(" ");
-              let current_role =
-                profileSummary[i].Role.toLowerCase().split(" ");
-              for (let j = 0; j < current_role.length; j++) {
-                if (user_role.includes(current_role[j].toLowerCase())) {
-                  summaryArray.push(profileSummary[i]);
-                  break;
-                }
-              }
-            }
-          }
+    //     if (
+    //       ResumeDetails.personalDetails.jobTitle.toLowerCase().includes("lead")
+    //     ) {
+    //       //Gets all the Lead
+    //       for (let i = 0; i < profileSummary.length; i++) {
+    //         if (profileSummary[i].Role.toLowerCase().includes("lead")) {
+    //           summaryArray.push(profileSummary[i]);
+    //         }
+    //       }
 
-          //Getting the List of Summary - (Senior/Junior)
-          if (summaryArray.length > 1) {
-            temporaryArray = summaryArray;
-            summaryArray = [];
-            if (
-              ResumeDetails.personalDetails.jobTitle
-                .toLowerCase()
-                .split(" ")
-                .includes("senior")
-            ) {
-              for (let i = 0; i < temporaryArray.length; i++) {
-                if (
-                  temporaryArray[i].Role.toLowerCase()
-                    .split(" ")
-                    .includes("senior")
-                ) {
-                  summaryArray.push(temporaryArray[i]);
-                }
-              }
-            } else {
-              for (let i = 0; i < temporaryArray.length; i++) {
-                if (
-                  temporaryArray[i].Role.toLowerCase()
-                    .split(" ")
-                    .includes("junior")
-                ) {
-                  summaryArray.push(temporaryArray[i]);
-                }
-              }
-            }
-          }
+    //       //Get Stack Specific
+    //       if (summaryArray.length > 1) {
+    //         temporaryArray = summaryArray;
+    //         summaryArray = [];
+    //         for (let i = 0; i < temporaryArray.length; i++) {
+    //           if (
+    //             ResumeDetails.personalDetails.jobTitle
+    //               .toLowerCase()
+    //               .split(" ")
+    //               .includes(temporaryArray[i].Role.toLowerCase().split(" ")[1])
+    //           ) {
+    //             summaryArray.push(temporaryArray[i]);
+    //           }
+    //         }
+    //       }
+    //     } else {
+    //       //Getting the List of Summary
+    //       for (let i = 0; i < profileSummary.length; i++) {
+    //         if (profileSummary[i].Role.length > 0) {
+    //           let user_role = ResumeDetails.personalDetails.jobTitle
+    //             .toLowerCase()
+    //             .split(" ");
+    //           let current_role =
+    //             profileSummary[i].Role.toLowerCase().split(" ");
+    //           for (let j = 0; j < current_role.length; j++) {
+    //             if (user_role.includes(current_role[j].toLowerCase())) {
+    //               summaryArray.push(profileSummary[i]);
+    //               break;
+    //             }
+    //           }
+    //         }
+    //       }
 
-          //Getting the List of Summary - (Stack)
-          if (summaryArray.length > 1) {
-            temporaryArray = summaryArray;
-            summaryArray = [];
-            for (let i = 0; i < temporaryArray.length; i++) {
-              if (
-                ResumeDetails.personalDetails.jobTitle
-                  .toLowerCase()
-                  .split(" ")
-                  .includes(temporaryArray[i].Role.toLowerCase().split(" ")[1])
-              ) {
-                summaryArray.push(temporaryArray[i]);
-              }
-            }
-          }
-        }
+    //       //Getting the List of Summary - (Senior/Junior)
+    //       if (summaryArray.length > 1) {
+    //         temporaryArray = summaryArray;
+    //         summaryArray = [];
+    //         if (
+    //           ResumeDetails.personalDetails.jobTitle
+    //             .toLowerCase()
+    //             .split(" ")
+    //             .includes("senior")
+    //         ) {
+    //           for (let i = 0; i < temporaryArray.length; i++) {
+    //             if (
+    //               temporaryArray[i].Role.toLowerCase()
+    //                 .split(" ")
+    //                 .includes("senior")
+    //             ) {
+    //               summaryArray.push(temporaryArray[i]);
+    //             }
+    //           }
+    //         } else {
+    //           for (let i = 0; i < temporaryArray.length; i++) {
+    //             if (
+    //               temporaryArray[i].Role.toLowerCase()
+    //                 .split(" ")
+    //                 .includes("junior")
+    //             ) {
+    //               summaryArray.push(temporaryArray[i]);
+    //             }
+    //           }
+    //         }
+    //       }
 
-        if (summaryArray.length > 1) {
-          temporaryArray = summaryArray;
-          summaryArray = [];
-          for (let i = 0; i < temporaryArray.length; i++) {
-            if (
-              ResumeDetails.personalDetails.jobTitle
-                .toLowerCase()
-                .split(" ")
-                .includes(temporaryArray[i].Role.toLowerCase().split(" ")[0])
-            ) {
-              summaryArray.push(temporaryArray[i]);
-            }
-          }
-        }
+    //       //Getting the List of Summary - (Stack)
+    //       if (summaryArray.length > 1) {
+    //         temporaryArray = summaryArray;
+    //         summaryArray = [];
+    //         for (let i = 0; i < temporaryArray.length; i++) {
+    //           if (
+    //             ResumeDetails.personalDetails.jobTitle
+    //               .toLowerCase()
+    //               .split(" ")
+    //               .includes(temporaryArray[i].Role.toLowerCase().split(" ")[1])
+    //           ) {
+    //             summaryArray.push(temporaryArray[i]);
+    //           }
+    //         }
+    //       }
+    //     }
 
-        if (summaryArray.length == 0) {
-          if (
-            ResumeDetails.personalDetails.jobTitle
-              .toLowerCase()
-              .includes("lead")
-          ) {
-            summaryArray = [profileSummary[profileSummary.length - 4]];
-          } else if (
-            ResumeDetails.personalDetails.jobTitle
-              .toLowerCase()
-              .includes("senior")
-          ) {
-            summaryArray = [profileSummary[profileSummary.length - 3]];
-          } else if (
-            ResumeDetails.personalDetails.jobTitle
-              .toLowerCase()
-              .includes("junior")
-          ) {
-            summaryArray = [profileSummary[profileSummary.length - 2]];
-          } else {
-            summaryArray = [profileSummary[profileSummary.length - 1]];
-          }
-        }
+    //     if (summaryArray.length > 1) {
+    //       temporaryArray = summaryArray;
+    //       summaryArray = [];
+    //       for (let i = 0; i < temporaryArray.length; i++) {
+    //         if (
+    //           ResumeDetails.personalDetails.jobTitle
+    //             .toLowerCase()
+    //             .split(" ")
+    //             .includes(temporaryArray[i].Role.toLowerCase().split(" ")[0])
+    //         ) {
+    //           summaryArray.push(temporaryArray[i]);
+    //         }
+    //       }
+    //     }
 
-        if (
-          ResumeDetails.personalDetails.jobTitle.toLowerCase() !=
-          "mobile architect"
-        ) {
-          summaryArray = [];
-          summaryArray = [profileSummary[profileSummary.length - 1]];
-        }
+    //     if (summaryArray.length == 0) {
+    //       if (
+    //         ResumeDetails.personalDetails.jobTitle
+    //           .toLowerCase()
+    //           .includes("lead")
+    //       ) {
+    //         summaryArray = [profileSummary[profileSummary.length - 4]];
+    //       } else if (
+    //         ResumeDetails.personalDetails.jobTitle
+    //           .toLowerCase()
+    //           .includes("senior")
+    //       ) {
+    //         summaryArray = [profileSummary[profileSummary.length - 3]];
+    //       } else if (
+    //         ResumeDetails.personalDetails.jobTitle
+    //           .toLowerCase()
+    //           .includes("junior")
+    //       ) {
+    //         summaryArray = [profileSummary[profileSummary.length - 2]];
+    //       } else {
+    //         summaryArray = [profileSummary[profileSummary.length - 1]];
+    //       }
+    //     }
 
-        setResumeSummary(
-          summaryArray[0].Summary[
-            Math.floor(Math.random() * summaryArray[0].Summary.length)
-          ]
-        );
-      }
-    }, [ResumeDetails.personalDetails]);
+    //     if (
+    //       ResumeDetails.personalDetails.jobTitle.toLowerCase() !=
+    //       "mobile architect"
+    //     ) {
+    //       summaryArray = [];
+    //       summaryArray = [profileSummary[profileSummary.length - 1]];
+    //     }
+
+    //     setResumeSummary(
+    //       summaryArray[0].Summary[
+    //       Math.floor(Math.random() * summaryArray[0].Summary.length)
+    //       ]
+    //     );
+    //   }
+    // }, [ResumeDetails.personalDetails]);
 
     useEffect(() => {
       let frontEndData = "";
@@ -319,19 +346,64 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
         frontEndData +
         " for frontend " +
         ((backEndData.length > 0) ? backEndData +
-        " for backend " : " ") +
+          " for backend " : " ") +
         ((DataBaseData.length > 0) ? DataBaseData +
-        " for database." : "" );
+          " for database." : "");
       setAllStacks(All_Stacks);
       setStackList(frontEndData + ", " + backEndData + ", " + DataBaseData);
     }, [ResumeDetails.projectDetails]);
 
     useEffect(() => {
-      setproject_Summary([]);
-      for (let i = 0; i < ResumeDetails.projectDetails.length; i++) {
-        getProjectDetails(ResumeDetails.projectDetails[i], i);
+      const chatGPTProjectSummary = () => {
+        setproject_Summary([]);
+        for (let i = 0; i < ResumeDetails.projectDetails.length; i++) {
+          console.log("started");
+          getChatGPTProjectDetails(ResumeDetails.projectDetails[i], i);
+        }
       }
-    }, [ResumeDetails.projectDetails]);
+    }, [ResumeDetails.projectDetails])
+
+    const getChatGPTProjectDetails = (Dataset: any, index: any) => {
+      let data: any = Dataset;
+      let project_details = [];
+
+      const configuration = new Configuration({
+        apiKey: "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",
+      });
+      const openai = new OpenAIApi(configuration);
+
+      const completion = openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: `project summary for ${data.role} in ${data.front_end} for frontend and ${data.back_end} for backend using ${data.platform} and ${data.database}`,
+        temperature: 0.3,
+        max_tokens: 1000,
+      });
+
+      completion.then(function (result: any) {
+        let objectlist: any = {
+          Role: "",
+          Description: result.data.choices[0].text,
+        };
+        project_details.push(objectlist);
+        if(project_details.length > 0){
+          let details = projectDetails;
+          details[index] = projectDetails[0];
+          setproject_Summary(details);
+        }
+        console.log(result.data.choices[0].text);
+      }, function (err: any) {
+        console.log(err)
+      });
+    }
+
+
+
+    // useEffect(() => {
+    //   setproject_Summary([]);
+    //   for (let i = 0; i < ResumeDetails.projectDetails.length; i++) {
+    //     getProjectDetails(ResumeDetails.projectDetails[i], i);
+    //   }
+    // }, [ResumeDetails.projectDetails]);
 
     const componentRef = React.useRef<HTMLDivElement>(null);
 
@@ -340,9 +412,9 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
     const [loading, setLoading] = React.useState(false);
     const [text, setText] = React.useState("old boring text");
 
-    const handleAfterPrint = React.useCallback(() => {}, []);
+    const handleAfterPrint = React.useCallback(() => { }, []);
 
-    const handleBeforePrint = React.useCallback(() => {}, []);
+    const handleBeforePrint = React.useCallback(() => { }, []);
 
     const handleOnBeforeGetContent = React.useCallback(() => {
       setLoading(true);
@@ -386,61 +458,61 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
               Description:
                 "<ul>" +
                 projects.Description[
-                  Math.floor(Math.random() * projects.Description.length)
+                Math.floor(Math.random() * projects.Description.length)
                 ] +
                 (data.frontEnd.length > 0
                   ? commonstackPoints[0].Stack_Frontend[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Frontend.length
-                      )
-                    ]
-                      .replaceAll("{front_end}", data.frontEnd)
-                      .replaceAll("{platform}", data.platform)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Frontend.length
+                    )
+                  ]
+                    .replaceAll("{front_end}", data.frontEnd)
+                    .replaceAll("{platform}", data.platform)
                   : "") +
                 (data.backEnd.length > 0
                   ? commonstackPoints[0].Stack_Backend[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Backend.length
-                      )
-                    ]
-                      .replaceAll("{back_end}", data.backEnd)
-                      .replaceAll("{platform}", data.platform)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Backend.length
+                    )
+                  ]
+                    .replaceAll("{back_end}", data.backEnd)
+                    .replaceAll("{platform}", data.platform)
                   : "") +
                 (data.database.length > 0
                   ? commonstackPoints[0].Stack_Database[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Database.length
-                      )
-                    ].replaceAll("{database}", data.database)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Database.length
+                    )
+                  ].replaceAll("{database}", data.database)
                   : "") +
                 (data.hasadminpanel == true &&
-                data.apFrontEnd.length > 0 &&
-                data.apBackEnd.length > 0
+                  data.apFrontEnd.length > 0 &&
+                  data.apBackEnd.length > 0
                   ? adminPanel[0].Admin_Panel[
-                      Math.floor(
-                        Math.random() * adminPanel[0].Admin_Panel.length
-                      )
-                    ]
-                      .replaceAll("{ad_front_end}", data.apFrontEnd)
-                      .replaceAll("{ad_back_end}", data.apBackEnd)
-                      .replaceAll("{project_industry}", data.industry)
+                    Math.floor(
+                      Math.random() * adminPanel[0].Admin_Panel.length
+                    )
+                  ]
+                    .replaceAll("{ad_front_end}", data.apFrontEnd)
+                    .replaceAll("{ad_back_end}", data.apBackEnd)
+                    .replaceAll("{project_industry}", data.industry)
                   : data.hasadminpanel == true && data.apFrontEnd.length > 0
-                  ? adminPanel[0].Ad_Frontend[
+                    ? adminPanel[0].Ad_Frontend[
                       Math.floor(
                         Math.random() * adminPanel[0].Ad_Frontend.length
                       )
                     ]
                       .replaceAll("{ad_front_end}", data.apFrontEnd)
                       .replaceAll("{project_industry}", data.industry)
-                  : "") +
+                    : "") +
                 (data.versionControl.toLowerCase().split(" ").includes("tfs")
                   ? commonVersionControl[0].content
                   : data.versionControl.toLowerCase().split(" ").includes("git")
-                  ? commonVersionControl[1].content
-                  : commonVersionControl[2].content[
+                    ? commonVersionControl[1].content
+                    : commonVersionControl[2].content[
                       Math.floor(
                         Math.random() * commonVersionControl[2].content.length
                       )
@@ -459,61 +531,61 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
               Description:
                 "<ul>" +
                 projects.Description[
-                  Math.floor(Math.random() * projects.Description.length)
+                Math.floor(Math.random() * projects.Description.length)
                 ] +
                 (data.frontEnd.length > 0
                   ? commonstackPoints[0].Stack_Frontend[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Frontend.length
-                      )
-                    ]
-                      .replaceAll("{front_end}", data.frontEnd)
-                      .replaceAll("{platform}", data.platform)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Frontend.length
+                    )
+                  ]
+                    .replaceAll("{front_end}", data.frontEnd)
+                    .replaceAll("{platform}", data.platform)
                   : "") +
                 (data.backEnd.length > 0
                   ? commonstackPoints[0].Stack_Backend[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Backend.length
-                      )
-                    ]
-                      .replaceAll("{back_end}", data.backEnd)
-                      .replaceAll("{platform}", data.platform)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Backend.length
+                    )
+                  ]
+                    .replaceAll("{back_end}", data.backEnd)
+                    .replaceAll("{platform}", data.platform)
                   : "") +
                 (data.database.length > 0
                   ? commonstackPoints[0].Stack_Database[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Database.length
-                      )
-                    ].replaceAll("{database}", data.database)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Database.length
+                    )
+                  ].replaceAll("{database}", data.database)
                   : "") +
                 (data.hasadminpanel == true &&
-                data.apFrontEnd.length > 0 &&
-                data.apBackEnd.length > 0
+                  data.apFrontEnd.length > 0 &&
+                  data.apBackEnd.length > 0
                   ? adminPanel[0].Admin_Panel[
-                      Math.floor(
-                        Math.random() * adminPanel[0].Admin_Panel.length
-                      )
-                    ]
-                      .replaceAll("{ad_front_end}", data.apFrontEnd)
-                      .replaceAll("{ad_back_end}", data.apBackEnd)
-                      .replaceAll("{project_industry}", data.industry)
+                    Math.floor(
+                      Math.random() * adminPanel[0].Admin_Panel.length
+                    )
+                  ]
+                    .replaceAll("{ad_front_end}", data.apFrontEnd)
+                    .replaceAll("{ad_back_end}", data.apBackEnd)
+                    .replaceAll("{project_industry}", data.industry)
                   : data.hasadminpanel == true && data.apFrontEnd.length > 0
-                  ? adminPanel[0].Ad_Frontend[
+                    ? adminPanel[0].Ad_Frontend[
                       Math.floor(
                         Math.random() * adminPanel[0].Ad_Frontend.length
                       )
                     ]
                       .replaceAll("{ad_front_end}", data.apFrontEnd)
                       .replaceAll("{project_industry}", data.industry)
-                  : "") +
+                    : "") +
                 (data.versionControl.toLowerCase().split(" ").includes("tfs")
                   ? commonVersionControl[0].content
                   : data.versionControl.toLowerCase().split(" ").includes("git")
-                  ? commonVersionControl[1].content
-                  : commonVersionControl[2].content[
+                    ? commonVersionControl[1].content
+                    : commonVersionControl[2].content[
                       Math.floor(
                         Math.random() * commonVersionControl[2].content.length
                       )
@@ -532,61 +604,61 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
               Description:
                 "<ul>" +
                 projects.Description[
-                  Math.floor(Math.random() * projects.Description.length)
+                Math.floor(Math.random() * projects.Description.length)
                 ] +
                 (data.frontEnd.length > 0
                   ? commonstackPoints[0].Stack_Frontend[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Frontend.length
-                      )
-                    ]
-                      .replaceAll("{front_end}", data.frontEnd)
-                      .replaceAll("{platform}", data.platform)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Frontend.length
+                    )
+                  ]
+                    .replaceAll("{front_end}", data.frontEnd)
+                    .replaceAll("{platform}", data.platform)
                   : "") +
                 (data.backEnd.length > 0
                   ? commonstackPoints[0].Stack_Backend[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Backend.length
-                      )
-                    ]
-                      .replaceAll("{back_end}", data.backEnd)
-                      .replaceAll("{platform}", data.platform)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Backend.length
+                    )
+                  ]
+                    .replaceAll("{back_end}", data.backEnd)
+                    .replaceAll("{platform}", data.platform)
                   : "") +
                 (data.database.length > 0
                   ? commonstackPoints[0].Stack_Database[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Database.length
-                      )
-                    ].replaceAll("{database}", data.database)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Database.length
+                    )
+                  ].replaceAll("{database}", data.database)
                   : "") +
                 (data.hasadminpanel == true &&
-                data.apFrontEnd.length > 0 &&
-                data.apBackEnd.length > 0
+                  data.apFrontEnd.length > 0 &&
+                  data.apBackEnd.length > 0
                   ? adminPanel[0].Admin_Panel[
-                      Math.floor(
-                        Math.random() * adminPanel[0].Admin_Panel.length
-                      )
-                    ]
-                      .replaceAll("{ad_front_end}", data.apFrontEnd)
-                      .replaceAll("{ad_back_end}", data.apBackEnd)
-                      .replaceAll("{project_industry}", data.industry)
+                    Math.floor(
+                      Math.random() * adminPanel[0].Admin_Panel.length
+                    )
+                  ]
+                    .replaceAll("{ad_front_end}", data.apFrontEnd)
+                    .replaceAll("{ad_back_end}", data.apBackEnd)
+                    .replaceAll("{project_industry}", data.industry)
                   : data.hasadminpanel == true && data.apFrontEnd.length > 0
-                  ? adminPanel[0].Ad_Frontend[
+                    ? adminPanel[0].Ad_Frontend[
                       Math.floor(
                         Math.random() * adminPanel[0].Ad_Frontend.length
                       )
                     ]
                       .replaceAll("{ad_front_end}", data.apFrontEnd)
                       .replaceAll("{project_industry}", data.industry)
-                  : "") +
+                    : "") +
                 (data.versionControl.toLowerCase().split(" ").includes("tfs")
                   ? commonVersionControl[0].content
                   : data.versionControl.toLowerCase().split(" ").includes("git")
-                  ? commonVersionControl[1].content
-                  : commonVersionControl[2].content[
+                    ? commonVersionControl[1].content
+                    : commonVersionControl[2].content[
                       Math.floor(
                         Math.random() * commonVersionControl[2].content.length
                       )
@@ -605,61 +677,61 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
               Description:
                 "<ul>" +
                 projects.Description[
-                  Math.floor(Math.random() * projects.Description.length)
+                Math.floor(Math.random() * projects.Description.length)
                 ] +
                 (data.frontEnd.length > 0
                   ? commonstackPoints[0].Stack_Frontend[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Frontend.length
-                      )
-                    ]
-                      .replaceAll("{front_end}", data.frontEnd)
-                      .replaceAll("{platform}", data.platform)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Frontend.length
+                    )
+                  ]
+                    .replaceAll("{front_end}", data.frontEnd)
+                    .replaceAll("{platform}", data.platform)
                   : "") +
                 (data.backEnd.length > 0
                   ? commonstackPoints[0].Stack_Backend[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Backend.length
-                      )
-                    ]
-                      .replaceAll("{back_end}", data.backEnd)
-                      .replaceAll("{platform}", data.platform)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Backend.length
+                    )
+                  ]
+                    .replaceAll("{back_end}", data.backEnd)
+                    .replaceAll("{platform}", data.platform)
                   : "") +
                 (data.database.length > 0
                   ? commonstackPoints[0].Stack_Database[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Database.length
-                      )
-                    ].replaceAll("{database}", data.database)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Database.length
+                    )
+                  ].replaceAll("{database}", data.database)
                   : "") +
                 (data.hasadminpanel == true &&
-                data.apFrontEnd.length > 0 &&
-                data.apBackEnd.length > 0
+                  data.apFrontEnd.length > 0 &&
+                  data.apBackEnd.length > 0
                   ? adminPanel[0].Admin_Panel[
-                      Math.floor(
-                        Math.random() * adminPanel[0].Admin_Panel.length
-                      )
-                    ]
-                      .replaceAll("{ad_front_end}", data.apFrontEnd)
-                      .replaceAll("{ad_back_end}", data.apBackEnd)
-                      .replaceAll("{project_industry}", data.industry)
+                    Math.floor(
+                      Math.random() * adminPanel[0].Admin_Panel.length
+                    )
+                  ]
+                    .replaceAll("{ad_front_end}", data.apFrontEnd)
+                    .replaceAll("{ad_back_end}", data.apBackEnd)
+                    .replaceAll("{project_industry}", data.industry)
                   : data.hasadminpanel == true && data.apFrontEnd.length > 0
-                  ? adminPanel[0].Ad_Frontend[
+                    ? adminPanel[0].Ad_Frontend[
                       Math.floor(
                         Math.random() * adminPanel[0].Ad_Frontend.length
                       )
                     ]
                       .replaceAll("{ad_front_end}", data.apFrontEnd)
                       .replaceAll("{project_industry}", data.industry)
-                  : "") +
+                    : "") +
                 (data.versionControl.toLowerCase().split(" ").includes("tfs")
                   ? commonVersionControl[0].content
                   : data.versionControl.toLowerCase().split(" ").includes("git")
-                  ? commonVersionControl[1].content
-                  : commonVersionControl[2].content[
+                    ? commonVersionControl[1].content
+                    : commonVersionControl[2].content[
                       Math.floor(
                         Math.random() * commonVersionControl[2].content.length
                       )
@@ -678,61 +750,61 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
               Description:
                 "<ul>" +
                 projects.Description[
-                  Math.floor(Math.random() * projects.Description.length)
+                Math.floor(Math.random() * projects.Description.length)
                 ] +
                 (data.frontEnd.length > 0
                   ? commonstackPoints[0].Stack_Frontend[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Frontend.length
-                      )
-                    ]
-                      .replaceAll("{front_end}", data.frontEnd)
-                      .replaceAll("{platform}", data.platform)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Frontend.length
+                    )
+                  ]
+                    .replaceAll("{front_end}", data.frontEnd)
+                    .replaceAll("{platform}", data.platform)
                   : "") +
                 (data.backEnd.length > 0
                   ? commonstackPoints[0].Stack_Backend[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Backend.length
-                      )
-                    ]
-                      .replaceAll("{back_end}", data.backEnd)
-                      .replaceAll("{platform}", data.platform)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Backend.length
+                    )
+                  ]
+                    .replaceAll("{back_end}", data.backEnd)
+                    .replaceAll("{platform}", data.platform)
                   : "") +
                 (data.database.length > 0
                   ? commonstackPoints[0].Stack_Database[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Database.length
-                      )
-                    ].replaceAll("{database}", data.database)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Database.length
+                    )
+                  ].replaceAll("{database}", data.database)
                   : "") +
                 (data.hasadminpanel == true &&
-                data.apFrontEnd.length > 0 &&
-                data.apBackEnd.length > 0
+                  data.apFrontEnd.length > 0 &&
+                  data.apBackEnd.length > 0
                   ? adminPanel[0].Admin_Panel[
-                      Math.floor(
-                        Math.random() * adminPanel[0].Admin_Panel.length
-                      )
-                    ]
-                      .replaceAll("{ad_front_end}", data.apFrontEnd)
-                      .replaceAll("{ad_back_end}", data.apBackEnd)
-                      .replaceAll("{project_industry}", data.industry)
+                    Math.floor(
+                      Math.random() * adminPanel[0].Admin_Panel.length
+                    )
+                  ]
+                    .replaceAll("{ad_front_end}", data.apFrontEnd)
+                    .replaceAll("{ad_back_end}", data.apBackEnd)
+                    .replaceAll("{project_industry}", data.industry)
                   : data.hasadminpanel == true && data.apFrontEnd.length > 0
-                  ? adminPanel[0].Ad_Frontend[
+                    ? adminPanel[0].Ad_Frontend[
                       Math.floor(
                         Math.random() * adminPanel[0].Ad_Frontend.length
                       )
                     ]
                       .replaceAll("{ad_front_end}", data.apFrontEnd)
                       .replaceAll("{project_industry}", data.industry)
-                  : "") +
+                    : "") +
                 (data.versionControl.toLowerCase().split(" ").includes("tfs")
                   ? commonVersionControl[0].content
                   : data.versionControl.toLowerCase().split(" ").includes("git")
-                  ? commonVersionControl[1].content
-                  : commonVersionControl[2].content[
+                    ? commonVersionControl[1].content
+                    : commonVersionControl[2].content[
                       Math.floor(
                         Math.random() * commonVersionControl[2].content.length
                       )
@@ -749,61 +821,61 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
               Description:
                 "<ul>" +
                 projects.Description[
-                  Math.floor(Math.random() * projects.Description.length)
+                Math.floor(Math.random() * projects.Description.length)
                 ] +
                 (data.frontEnd.length > 0
                   ? commonstackPoints[0].Stack_Frontend[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Frontend.length
-                      )
-                    ]
-                      .replaceAll("{front_end}", data.frontEnd)
-                      .replaceAll("{platform}", data.platform)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Frontend.length
+                    )
+                  ]
+                    .replaceAll("{front_end}", data.frontEnd)
+                    .replaceAll("{platform}", data.platform)
                   : "") +
                 (data.backEnd.length > 0
                   ? commonstackPoints[0].Stack_Backend[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Backend.length
-                      )
-                    ]
-                      .replaceAll("{back_end}", data.backEnd)
-                      .replaceAll("{platform}", data.platform)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Backend.length
+                    )
+                  ]
+                    .replaceAll("{back_end}", data.backEnd)
+                    .replaceAll("{platform}", data.platform)
                   : "") +
                 (data.database.length > 0
                   ? commonstackPoints[0].Stack_Database[
-                      Math.floor(
-                        Math.random() *
-                          commonstackPoints[0].Stack_Database.length
-                      )
-                    ].replaceAll("{database}", data.database)
+                    Math.floor(
+                      Math.random() *
+                      commonstackPoints[0].Stack_Database.length
+                    )
+                  ].replaceAll("{database}", data.database)
                   : "") +
                 (data.hasadminpanel == true &&
-                data.apFrontEnd.length > 0 &&
-                data.apBackEnd.length > 0
+                  data.apFrontEnd.length > 0 &&
+                  data.apBackEnd.length > 0
                   ? adminPanel[0].Admin_Panel[
-                      Math.floor(
-                        Math.random() * adminPanel[0].Admin_Panel.length
-                      )
-                    ]
-                      .replaceAll("{ad_front_end}", data.apFrontEnd)
-                      .replaceAll("{ad_back_end}", data.apBackEnd)
-                      .replaceAll("{project_industry}", data.industry)
+                    Math.floor(
+                      Math.random() * adminPanel[0].Admin_Panel.length
+                    )
+                  ]
+                    .replaceAll("{ad_front_end}", data.apFrontEnd)
+                    .replaceAll("{ad_back_end}", data.apBackEnd)
+                    .replaceAll("{project_industry}", data.industry)
                   : data.hasadminpanel == true && data.apFrontEnd.length > 0
-                  ? adminPanel[0].Ad_Frontend[
+                    ? adminPanel[0].Ad_Frontend[
                       Math.floor(
                         Math.random() * adminPanel[0].Ad_Frontend.length
                       )
                     ]
                       .replaceAll("{ad_front_end}", data.apFrontEnd)
                       .replaceAll("{project_industry}", data.industry)
-                  : "") +
+                    : "") +
                 (data.versionControl.toLowerCase().split(" ").includes("tfs")
                   ? commonVersionControl[0].content
                   : data.versionControl.toLowerCase().split(" ").includes("git")
-                  ? commonVersionControl[1].content
-                  : commonVersionControl[2].content[
+                    ? commonVersionControl[1].content
+                    : commonVersionControl[2].content[
                       Math.floor(
                         Math.random() * commonVersionControl[2].content.length
                       )
@@ -889,38 +961,38 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
 
 
 
-useEffect(() => {
-  const concernedElement:any = document.querySelector(".click-text");
+    useEffect(() => {
+      const concernedElement: any = document.querySelector(".click-text");
 
-  document.addEventListener("mousedown", (event) => {
-    if(editSummary == false){
-      if(concernedElement != null){
-        if (concernedElement.contains(event.target)) {
-          } else {
-            setEditSummary(false);
-            // setResumeSummary(editorSummary);
+      document.addEventListener("mousedown", (event) => {
+        if (editSummary == false) {
+          if (concernedElement != null) {
+            if (concernedElement.contains(event.target)) {
+            } else {
+              setEditSummary(false);
+              // setResumeSummary(editorSummary);
+            }
           }
-      }
 
-    }
-  });
-}, [editorSummary])
+        }
+      });
+    }, [editorSummary])
 
 
-// useEffect(() => {
-//   const concernedElement:any = document.querySelector(".project-text");
+    // useEffect(() => {
+    //   const concernedElement:any = document.querySelector(".project-text");
 
-//   document.addEventListener("mousedown", (event) => {
-//     if(editSummary == false){
-//     if (concernedElement.contains(event.target)) {
-//       console.log("Clicked Inside");
-//     } else {
-//       setselectedProjectIndex(null);
-//         // setResumeSummary(editorSummary);
-//       }
-//     }
-//   });
-// }, [selectedProjectIndex])
+    //   document.addEventListener("mousedown", (event) => {
+    //     if(editSummary == false){
+    //     if (concernedElement.contains(event.target)) {
+    //       console.log("Clicked Inside");
+    //     } else {
+    //       setselectedProjectIndex(null);
+    //         // setResumeSummary(editorSummary);
+    //       }
+    //     }
+    //   });
+    // }, [selectedProjectIndex])
 
 
 
@@ -1059,8 +1131,10 @@ useEffect(() => {
                     .replaceAll("{version-control}", versionControl)
                     .replaceAll("{platforms}", platforms)
                     .replaceAll("{all_stacks}", allStacks)}
-                  onChange={(value) => {setEditorSummary(value)
-                    setResumeSummary(value)}}
+                  onChange={(value) => {
+                    setEditorSummary(value)
+                    setResumeSummary(value)
+                  }}
                   modules={modules}
                   style={{
                     fontFamily: "Spectral",
