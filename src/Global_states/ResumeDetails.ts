@@ -28,11 +28,11 @@ const ResumeDetails = createSlice({
       state.value.projectDetails = action.payload;
     },
     setEnableChatGPT: (state, action) => {
-      state.value.projectDetails = action.payload;
+      state.value.enableChatGPT = action.payload;
     },
   },
 });
 
 export default ResumeDetails.reducer;
-export const { setPersonalDetails, setEducationDetails, setProjectDetails } =
+export const { setPersonalDetails, setEducationDetails, setProjectDetails,setEnableChatGPT } =
   ResumeDetails.actions;

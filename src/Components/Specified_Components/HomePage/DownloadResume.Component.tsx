@@ -82,7 +82,7 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
 
       const completion = openai.createCompletion({
         model: "text-davinci-003",
-        prompt: `project summary for ${ResumeDetails.personalDetails.jobTitle}`,
+        prompt: `role summary for ${ResumeDetails.personalDetails.jobTitle}`,
         temperature: 0.3,
         max_tokens: 1000,
       });
@@ -381,7 +381,7 @@ const DownloadResume: React.FC<DownloadResumeProps> = forwardRef(
 
       const completion = openai.createCompletion({
         model: "text-davinci-003",
-        prompt: `Project summary for resume builder app in points`,
+        prompt: `the responsibilities of ${ResumeDetails.personalDetails.jobTitle} in points`,
         temperature: 0.3,
         max_tokens: 1000,
       });

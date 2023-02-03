@@ -397,7 +397,7 @@ function HomePage() {
                           width: "18px",
                           height: "18px",
                           cursor: "pointer",
-                        }}
+                        }}   
                       />
                     </div>
                   </Tooltip>
